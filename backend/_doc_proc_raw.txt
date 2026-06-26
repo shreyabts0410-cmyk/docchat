@@ -1,0 +1,67 @@
+FILE 2 — doc_processor.py:
+
+"""Document extraction & editing for docx, pdf, pptx, xlsx."""
+import io
+from typing import List, Tuple
+
+from docx import Document as DocxDocument
+from pypdf import PdfReader
+from pptx import Presentation
+<truncated 4649 bytes>
+sheet]
+        for row in ws.iter_rows():
+            for cell in row:
+                if cell.value is not None and isinstance(cell.value, str) and old in cell.value:
+                    cell.value = cell.value.replace(old, new, 1)
+                    changed = True
+                    break
+            if changed:
+                break
+        if changed:
+            break
+    out = io.BytesIO()
+    wb.save(out)
+    return out.getvalue(), changed
+
+
+def _edit_pdf(b: bytes, old: str, new: str) -> Tuple[bytes, bool]:
+    try:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    except ImportError:
+        return b, False
+    text = _extract_pdf(b)
+    if old not in text:
+        return b, False
+    new_text = text.replace(old, new, 1)
+    out = io.BytesIO()
+    doc = SimpleDocTemplate(out, pagesize=letter)
+    styles = getSampleStyleSheet()
+    flow = []
+    for line in new_text.split("\n"):
+        safe = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        flow.append(Paragraph(safe or "&nbsp;", styles["Normal"]))
+        flow.append(Spacer(1, 4))
+    doc.build(flow)
+    return out.getvalue(), True
+
+
+After creating both files run:
+cd /Users/shreyayadav/Desktop/chatbot/backend && uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+
+Show me the startup log output.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-06-23T02:23:46+05:30.
+
+The user's current state is as follows:
+Active Document: /Users/shreyayadav/Desktop/chatbot/backend/main.py (LANGUAGE_PYTHON)
+Cursor is on line: 1
+Other open documents:
+- /Users/shreyayadav/Desktop/chatbot/backend/main.py (LANGUAGE_PYTHON)
+- /Users/shreyayadav/Desktop/chatbot/backend/llm_client.py (LANGUAGE_PYTHON)
+- /Users/shreyayadav/Desktop/chatbot/backend/requirements.txt (LANGUAGE_UNSPECIFIED)
+No browser pages are currently open.
+</ADDITIONAL_METADATA>
