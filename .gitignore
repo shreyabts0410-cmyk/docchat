@@ -1,0 +1,8 @@
+backend/venv/
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+.DS_Store
+node_modules/
+frontend/dist/
