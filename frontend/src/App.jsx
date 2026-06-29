@@ -56,6 +56,52 @@ function ParticleBackground() {
   )
 }
 
+function MoonlightSpotlight() {
+  const overlayRef = useRef(null)
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!overlayRef.current) return
+      const { clientX: x, clientY: y } = e
+      // Brighter radial glow following the mouse
+      overlayRef.current.style.background = `radial-gradient(800px circle at ${x}px ${y}px, rgba(255,255,255,0.08), transparent 40%)`
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  return (
+    <>
+      {/* Intense White Core */}
+      <div style={{
+        position: 'fixed', top: -120, left: '50%', transform: 'translateX(-50%)',
+        width: 350, height: 250, borderRadius: '50%',
+        background: 'rgba(255, 255, 255, 0.45)', filter: 'blur(60px)',
+        pointerEvents: 'none', zIndex: 1
+      }} />
+      {/* Wide Cyan/Blue Halo */}
+      <div style={{
+        position: 'fixed', top: -150, left: '50%', transform: 'translateX(-50%)',
+        width: 900, height: 400, borderRadius: '50%',
+        background: 'rgba(6, 182, 212, 0.18)', filter: 'blur(100px)',
+        pointerEvents: 'none', zIndex: 1
+      }} />
+      {/* Wide Spotlight Beam streaming down */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh',
+        background: 'radial-gradient(ellipse 130% 110% at 50% -15%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 45%, transparent 75%)',
+        pointerEvents: 'none', zIndex: 1
+      }} />
+      {/* Mouse Tracking Spotlight */}
+      <div ref={overlayRef} style={{
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+        pointerEvents: 'none', zIndex: 1, transition: 'background 0.1s ease-out'
+      }} />
+    </>
+  )
+}
+
+
 function MarkdownText({ text }) {
   const lines = text.split('\n')
   const elements = []
@@ -129,7 +175,145 @@ function CopyButton({ text }) {
   )
 }
 
+function AuthModal({ onClose, initialMode = 'login' }) {
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup')
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'rgba(4,5,8,0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+      perspective: 1200
+    }}>
+      <div style={{ position: 'relative', width: 440, height: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {/* Left Background Card */}
+        <div style={{
+          position: 'absolute', width: 320, height: 400,
+          background: 'rgba(20,20,25,0.6)', borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.05)',
+          transform: 'translateX(-45%) scale(0.85) rotateY(15deg)',
+          opacity: 0.5, pointerEvents: 'none',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)'
+        }}>
+          <div style={{ padding: 24, opacity: 0.3 }}>
+            <div style={{ width: '40%', height: 12, background: '#fff', borderRadius: 6, marginBottom: 24 }} />
+            <div style={{ width: '100%', height: 40, background: '#000', borderRadius: 8, marginBottom: 12 }} />
+            <div style={{ width: '100%', height: 40, background: '#000', borderRadius: 8 }} />
+          </div>
+        </div>
+        
+        {/* Right Background Card */}
+        <div style={{
+          position: 'absolute', width: 320, height: 400,
+          background: 'rgba(20,20,25,0.6)', borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.05)',
+          transform: 'translateX(45%) scale(0.85) rotateY(-15deg)',
+          opacity: 0.5, pointerEvents: 'none',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)'
+        }}>
+          <div style={{ padding: 24, opacity: 0.3 }}>
+            <div style={{ width: '50%', height: 12, background: '#fff', borderRadius: 6, marginBottom: 24 }} />
+            <div style={{ width: '20%', height: 40, background: '#000', borderRadius: 8, marginBottom: 12, display: 'inline-block', marginRight: 10 }} />
+            <div style={{ width: '20%', height: 40, background: '#000', borderRadius: 8, marginBottom: 12, display: 'inline-block', marginRight: 10 }} />
+            <div style={{ width: '20%', height: 40, background: '#000', borderRadius: 8, marginBottom: 12, display: 'inline-block' }} />
+            <div style={{ width: '100%', height: 40, background: '#000', borderRadius: 8 }} />
+          </div>
+        </div>
+        
+        {/* Center Active Card */}
+        <div style={{
+          position: 'absolute', width: 380, padding: 32,
+          background: 'rgba(15,15,20,0.85)', borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 0 1px rgba(255,255,255,0.03)',
+          backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+          display: 'flex', flexDirection: 'column',
+          transform: 'translateZ(40px)',
+        }}>
+          <button onClick={onClose} style={{
+            position: 'absolute', top: 16, right: 16, background: 'none', border: 'none',
+            color: '#64748b', cursor: 'pointer', fontSize: 24, lineHeight: 1
+          }}>×</button>
+          
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <h1 style={{ margin: 0, fontSize: 18, fontWeight: 500, color: '#f8fafc' }}>
+              {isSignUp ? 'Sign up for Rey' : 'Sign in to Rey'}
+            </h1>
+          </div>
+          
+          {isSignUp && (
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 8 }}>Name</label>
+              <input type="text" placeholder="Your name" style={{
+                width: '100%', padding: '12px 14px', borderRadius: 8,
+                background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)',
+                color: '#fff', outline: 'none', fontSize: 14, boxSizing: 'border-box',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)'
+              }} />
+            </div>
+          )}
+          
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 8 }}>Email</label>
+            <input type="email" placeholder="Your email address" style={{
+              width: '100%', padding: '12px 14px', borderRadius: 8,
+              background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)',
+              color: '#fff', outline: 'none', fontSize: 14, boxSizing: 'border-box',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)'
+            }} />
+          </div>
+          
+          <button style={{
+            width: '100%', padding: '12px', borderRadius: 8,
+            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)',
+            color: '#f8fafc', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+            transition: 'background 0.2s', marginBottom: 24, boxSizing: 'border-box'
+          }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.08)'} onMouseOut={e => e.target.style.background = 'rgba(255,255,255,0.03)'}>
+            Continue
+          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+            <span style={{ fontSize: 11, color: '#64748b', letterSpacing: '0.05em' }}>OR</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+          </div>
+          
+          <button style={{
+            width: '100%', padding: '12px', borderRadius: 8,
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)',
+            color: '#cbd5e1', fontSize: 14, fontWeight: 500, cursor: 'pointer', boxSizing: 'border-box',
+            marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+            Continue with Google
+          </button>
+          
+          <button style={{
+            width: '100%', padding: '12px', borderRadius: 8,
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)',
+            color: '#cbd5e1', fontSize: 14, fontWeight: 500, cursor: 'pointer', boxSizing: 'border-box',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#00a4ef" d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zM24 11.4H12.6V0H24v11.4z"/></svg>
+            Continue with Microsoft
+          </button>
+          
+          <div style={{ textAlign: 'center', marginTop: 24, fontSize: 12, color: '#64748b' }}>
+            {isSignUp ? (
+              <>Already have an account? <span onClick={() => setIsSignUp(false)} style={{ color: '#e2e8f0', cursor: 'pointer', fontWeight: 500 }}>Log in</span></>
+            ) : (
+              <>Don't have an account? <span onClick={() => setIsSignUp(true)} style={{ color: '#e2e8f0', cursor: 'pointer', fontWeight: 500 }}>Sign up</span></>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
+  const [showLogin, setShowLogin] = useState(false)
+  const [authMode, setAuthMode] = useState('login')
   const [docId, setDocId] = useState(null)
   const [filename, setFilename] = useState('')
   const [messages, setMessages] = useState([])
@@ -257,22 +441,50 @@ export default function App() {
   return (
     <div style={styles.page}>
       <ParticleBackground />
+      <MoonlightSpotlight />
 
-      <header style={styles.header}>
-        <div style={styles.headerLeft}>
-          <div style={styles.logoMark}>R</div>
+      <header style={{
+        ...styles.header,
+        padding: '16px 32px',
+        background: 'rgba(10, 10, 15, 0.5)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
           <h1 style={styles.title}>Rey</h1>
         </div>
-        <div style={styles.headerRight}>
-          {filename && (
-            <div style={styles.filenameChip}>
-              <span style={styles.filenameText}>{filename}</span>
-            </div>
-          )}
-          {docId && <button style={styles.clearBtn} onClick={clearChat}>Clear</button>}
-          {downloadReady && <button style={styles.downloadBtn} onClick={download}>↓ Download</button>}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {/* Settings Icon */}
+          <button style={{
+            background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
+          
+          <button onClick={() => { setAuthMode('login'); setShowLogin(true); }} style={{
+            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(10px)', color: '#fff', borderRadius: 20,
+            padding: '8px 16px', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+            transition: 'background 0.2s'
+          }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'rgba(255,255,255,0.05)'}>
+            Log in
+          </button>
+
+          <button onClick={() => { setAuthMode('signup'); setShowLogin(true); }} style={{
+            background: '#fff', color: '#000', border: 'none', borderRadius: 20,
+            padding: '8px 16px', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+            boxShadow: '0 0 10px rgba(255,255,255,0.2)'
+          }}>
+            Sign up
+          </button>
         </div>
       </header>
+
+      {/* Insert AuthModal conditionally */}
+      {showLogin && <AuthModal initialMode={authMode} onClose={() => setShowLogin(false)} />}
 
       <main style={styles.main}>
         {!docId ? (
@@ -406,7 +618,7 @@ const styles = {
   page: {
     fontFamily: "'Inter', system-ui, sans-serif",
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0a0a12 0%, #0f0a1e 50%, #0a0f1a 100%)',
+    background: '#040508', // very deep luxury blue-black
     color: '#e2e8f0',
     display: 'flex',
     flexDirection: 'column',
@@ -436,9 +648,10 @@ const styles = {
     boxShadow: '0 0 12px rgba(6,182,212,0.5)', flexShrink: 0,
   },
   title: {
-    margin: 0, fontSize: 18, fontWeight: 600,
-    background: 'linear-gradient(90deg, #e2e8f0, #67e8f9)',
-    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+    margin: 0, fontSize: 24, fontWeight: 700,
+    letterSpacing: '-0.03em',
+    color: '#e0f2fe',
+    textShadow: '0 0 16px rgba(186, 230, 253, 0.4), 0 0 32px rgba(186, 230, 253, 0.2)',
   },
   filenameChip: {
     display: 'flex', alignItems: 'center',
@@ -499,9 +712,11 @@ const styles = {
     lineHeight: 1.6, fontSize: 14.5,
   },
   userBubble: {
-    background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-    color: '#fff', borderBottomRightRadius: 4,
-    boxShadow: '0 4px 20px rgba(59,130,246,0.25)',
+    background: 'rgba(6,182,212,0.08)',
+    backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+    border: '1px solid rgba(6,182,212,0.18)',
+    color: '#e0f2fe', borderBottomRightRadius: 4,
+    boxShadow: '0 4px 20px rgba(6,182,212,0.08)',
   },
   assistantBubble: {
     background: 'rgba(255,255,255,0.05)',
